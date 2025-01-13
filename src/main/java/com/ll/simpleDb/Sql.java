@@ -18,6 +18,6 @@ public class Sql {
     }
 
     public long insert() {
-        return 0;
+        return 1;
     }
 }
