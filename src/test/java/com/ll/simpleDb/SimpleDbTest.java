@@ -77,9 +77,9 @@ public class SimpleDbTest {
 //        simpleDb.run("TRUNCATE article");
 //    }
 //
-//    @Test
-//    @DisplayName("insert")
-//    public void t001() {
+    @Test
+    @DisplayName("insert")
+    public void t001() {
 //        Sql sql = simpleDb.genSql();
 //        /*
 //        == rawSql ==
@@ -98,7 +98,7 @@ public class SimpleDbTest {
 //        long newId = sql.insert(); // AUTO_INCREMENT 에 의해서 생성된 주키 리턴
 //
 //        assertThat(newId).isGreaterThan(0);
-//    }
+    }
 //
 //    @Test
 //    @DisplayName("update")
