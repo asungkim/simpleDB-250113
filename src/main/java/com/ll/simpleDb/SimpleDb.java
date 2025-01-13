@@ -1,83 +1,94 @@
 package com.ll.simpleDb;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import lombok.Setter;
+
+import java.sql.*;
 
 public class SimpleDb {
-    private final String host; // 데이터베이스 서버 주소 (예: localhost)
-    private final String user; // 데이터베이스 사용자명 (예: root)
-    private final String password; // 데이터베이스 비밀번호
-    private final String databaseName; // 사용할 데이터베이스 이름
-    private boolean devMode = false; // 개발 모드 여부 (로그 출력용)
+    private String dbUrl;
+    private String dbUser;
+    private String dbPassword;
+    private Connection connection;
+    @Setter
+    private boolean devMode = false;
 
-    public SimpleDb(String host, String user, String password, String databaseName) {
-        this.host = host;
-        this.user = user;
-        this.password = password;
-        this.databaseName = databaseName;
-    }
+    // 생성자: 데이터베이스 연결 정보 초기화
+    public SimpleDb(String host, String user, String password, String dbName) {
+        this.dbUrl = "jdbc:mysql://" + host + ":3307/" + dbName; // JDBC URL
+        this.dbUser = user;                                    // 사용자 이름
+        this.dbPassword = password;                            // 비밀번호
 
-    /**
-     * 개발 모드 설정 (true일 경우 실행 쿼리를 출력)
-     */
-    public void setDevMode(boolean devMode) {
-        this.devMode = devMode;
-    }
-
-    /**
-     * 데이터베이스 연결을 생성합니다.
-     * @return Connection 객체
-     */
-    private Connection getConnection() throws SQLException {
-        // JDBC URL에 Docker에서 매핑된 포트를 반영
-        String jdbcUrl = String.format("jdbc:mysql://%s:%d/%s", host, 3307, databaseName);
-        return DriverManager.getConnection(jdbcUrl, user, password);
-    }
-
-    /**
-     * 데이터베이스에 쿼리를 실행합니다. (결과를 반환하지 않는 쿼리용)
-     * @param sql 실행할 SQL 쿼리
-     */
-    public void run(String sql) {
-        // try-with-resources를 사용해 자원을 자동으로 해제
-        try (Connection connection = getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
-            if (devMode) {
-                System.out.println("Executing SQL: " + sql);
-            }
-
-            statement.executeUpdate(); // INSERT, UPDATE, DELETE 등에 사용
-        } catch (SQLException e) {
-            // 예외 처리 및 에러 메시지 출력
-            System.err.println("Error executing SQL: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 데이터베이스에서 쿼리를 실행하고 결과를 반환합니다.
-     * @param sql 실행할 SQL 쿼리
-     * @return ResultSet 객체 (결과를 사용해야 함)
-     */
-    public ResultSet executeQuery(String sql) {
+        // 연결 초기화
         try {
-            Connection connection = getConnection();
-            PreparedStatement statement = connection.prepareStatement(sql);
-
+            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
             if (devMode) {
-                System.out.println("Executing SQL: " + sql);
+                System.out.println("데이터베이스에 성공적으로 연결되었습니다.");
             }
-
-            return statement.executeQuery(); // SELECT 쿼리에 사용
         } catch (SQLException e) {
-            // 예외 처리 및 에러 메시지 출력
-            System.err.println("Error executing SQL: " + e.getMessage());
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException("데이터베이스 연결 실패: " + e.getMessage());
         }
+    }
+
+
+
+    // SQL 실행 (DDL, DML 등 반환값이 없는 쿼리)
+    public void run(String sql) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.executeUpdate();
+            if (devMode) {
+                System.out.println("SQL 실행 완료: " + sql);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("SQL 실행 실패: " + e.getMessage());
+        }
+    }
+
+    // SQL 실행 (PreparedStatement와 파라미터)
+    public void run(String sql, Object... params) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            setParams(stmt, params); // 파라미터 설정
+            stmt.executeUpdate();
+            if (devMode) {
+                System.out.println("SQL 실행 완료: " + sql);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("SQL 실행 실패: " + e.getMessage());
+        }
+    }
+
+    // SELECT 쿼리 실행 (결과 반환)
+    public ResultSet select(String sql, Object... params) {
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            setParams(stmt, params); // 파라미터 설정
+            return stmt.executeQuery(); // 결과 집합 반환
+        } catch (SQLException e) {
+            throw new RuntimeException("SELECT 실행 실패: " + e.getMessage());
+        }
+    }
+
+    // PreparedStatement에 파라미터 바인딩
+    private void setParams(PreparedStatement stmt, Object... params) throws SQLException {
+        for (int i = 0; i < params.length; i++) {
+            stmt.setObject(i + 1, params[i]); // '?' 위치에 값 설정
+        }
+    }
+
+    // 데이터베이스 연결 종료
+    public void close() {
+        if (connection != null) {
+            try {
+                connection.close();
+                if (devMode) {
+                    System.out.println("데이터베이스 연결 종료.");
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException("데이터베이스 연결 종료 실패: " + e.getMessage());
+            }
+        }
+    }
+
+    public Sql genSql() {
+        return new Sql();
     }
 }
