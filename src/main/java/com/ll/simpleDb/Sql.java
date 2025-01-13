@@ -8,10 +8,12 @@ public class Sql {
     }
 
     public Sql append(String sqlLine) {
+        sqlBuilder.append(sqlLine);
         return this;
     }
 
     public Sql append(String sqlLine,Object... args ) {
+        sqlBuilder.append(sqlLine);
         return this;
     }
 
