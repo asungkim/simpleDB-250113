@@ -1,6 +1,6 @@
 package com.ll.simpleDb;
 
-import com.ll.Article;
+//import com.ll.Article;
 import org.junit.jupiter.api.*;
 
 import java.time.LocalDateTime;
@@ -29,11 +29,16 @@ public class SimpleDbTest {
         createArticleTable();
     }
 
-//    @BeforeEach
-//    public void beforeEach() {
+    @BeforeEach
+    public void beforeEach() {
 //        truncateArticleTable();
 //        makeArticleTestData();
-//    }
+    }
+
+    @Test
+    void t000() {
+
+    }
 
     private static void createArticleTable() {
         simpleDb.run("DROP TABLE IF EXISTS article");
