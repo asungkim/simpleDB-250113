@@ -1,11 +1,13 @@
 package com.ll.simpleDb;
 
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.Map;
 
 @AllArgsConstructor
+@NoArgsConstructor
 public class Article {
     private long id;
     private String title;

@@ -61,8 +61,11 @@ public class SimpleDb {
         return _run(sql, List.class, params);
     }
 
-    public List<Article> selectRows(String sql, List<Object> params,Class<?> cls) {
-        return selectRows(sql,params).stream().map(Article::fromMap).toList();
+    public <T> List<T>selectRows(String sql, List<Object> params,Class<T> cls) {
+        return selectRows(sql,params).stream()
+                .map(map->{
+                    return Util.mapToObj(map, cls);
+                }).toList();
     }
 
     public int delete(String sql, List<Object> params) {
