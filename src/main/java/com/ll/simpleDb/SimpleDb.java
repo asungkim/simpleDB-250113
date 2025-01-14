@@ -4,6 +4,7 @@ import lombok.Setter;
 
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,12 +46,16 @@ public class SimpleDb {
         return _run(sql, Long.class);
     }
 
-    public LocalDateTime selectDateTime(String string) {
-        return _run(string, LocalDateTime.class);
+    public LocalDateTime selectDateTime(String sql) {
+        return _run(sql, LocalDateTime.class);
     }
 
     public Map<String, Object> selectRow(String sql) {
         return _run(sql, Map.class);
+    }
+
+    public List<Map<String, Object>> selectRows(String sql) {
+        return _run(sql, List.class);
     }
 
 
@@ -64,28 +69,33 @@ public class SimpleDb {
 
             if (sql.startsWith("SELECT")) {
                 ResultSet rs = stmt.executeQuery();// 결과가 있는 것
-                rs.next();
-
+                
                 if (cls.equals(Boolean.class)) {
+                    rs.next();
                     return cls.cast(rs.getBoolean(1));
                 } else if (cls.equals(String.class)) {
+                    rs.next();
                     return cls.cast(rs.getString(1));
                 } else if (cls.equals(Long.class)) {
+                    rs.next();
                     return cls.cast(rs.getLong(1));
                 } else if (cls.equals(LocalDateTime.class)) {
+                    rs.next();
                     return cls.cast(rs.getTimestamp(1).toLocalDateTime());
                 } else if (cls.equals(Map.class)) {
-
-                    ResultSetMetaData metaData = rs.getMetaData();
-                    Map<String, Object> row = new HashMap<>();
-
-                    int columnCount = metaData.getColumnCount();
-                    for (int i = 1; i <= columnCount; i++) {
-                        String cname = metaData.getColumnName(i);
-                        row.put(cname, rs.getObject(i));
-                    }
+                    rs.next();
+                    Map<String, Object> row = makeRow(rs);
 
                     return cls.cast(row);
+                }
+                else if (cls.equals(List.class)) {
+                    List<Map<String, Object>> rows = new ArrayList<>();
+                    while (rs.next()) {
+                        Map<String, Object> row = makeRow(rs);
+                        rows.add(row);
+                    }
+
+                    return cls.cast(rows);
                 }
             }
 
@@ -94,6 +104,18 @@ public class SimpleDb {
         } catch (SQLException e) {
             throw new RuntimeException("SQL 실행 실패: " + e.getMessage());
         }
+    }
+
+    private Map<String, Object> makeRow(ResultSet rs) throws SQLException {
+        ResultSetMetaData metaData = rs.getMetaData();
+        Map<String, Object> row = new HashMap<>();
+
+        int columnCount = metaData.getColumnCount();
+        for (int i = 1; i <= columnCount; i++) {
+            String cname = metaData.getColumnName(i);
+            row.put(cname, rs.getObject(i));
+        }
+        return row;
     }
 
     // PreparedStatement에 파라미터 바인딩
@@ -106,6 +128,7 @@ public class SimpleDb {
     public Sql genSql() {
         return new Sql(this);
     }
+
 
 
 }
