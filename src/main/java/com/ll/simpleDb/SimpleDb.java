@@ -69,34 +69,7 @@ public class SimpleDb {
 
             if (sql.startsWith("SELECT")) {
                 ResultSet rs = stmt.executeQuery();// 결과가 있는 것
-                
-                if (cls.equals(Boolean.class)) {
-                    rs.next();
-                    return cls.cast(rs.getBoolean(1));
-                } else if (cls.equals(String.class)) {
-                    rs.next();
-                    return cls.cast(rs.getString(1));
-                } else if (cls.equals(Long.class)) {
-                    rs.next();
-                    return cls.cast(rs.getLong(1));
-                } else if (cls.equals(LocalDateTime.class)) {
-                    rs.next();
-                    return cls.cast(rs.getTimestamp(1).toLocalDateTime());
-                } else if (cls.equals(Map.class)) {
-                    rs.next();
-                    Map<String, Object> row = makeRow(rs);
-
-                    return cls.cast(row);
-                }
-                else if (cls.equals(List.class)) {
-                    List<Map<String, Object>> rows = new ArrayList<>();
-                    while (rs.next()) {
-                        Map<String, Object> row = makeRow(rs);
-                        rows.add(row);
-                    }
-
-                    return cls.cast(rows);
-                }
+                return parseSelectQuery(rs,cls,params);
             }
 
             setParams(stmt, params);
@@ -106,7 +79,40 @@ public class SimpleDb {
         }
     }
 
-    private Map<String, Object> makeRow(ResultSet rs) throws SQLException {
+    private <T> T parseSelectQuery(ResultSet rs , Class<T> cls, Object... params) throws SQLException {
+
+        if (cls.equals(Boolean.class)) {
+            rs.next();
+            return cls.cast(rs.getBoolean(1));
+        } else if (cls.equals(String.class)) {
+            rs.next();
+            return cls.cast(rs.getString(1));
+        } else if (cls.equals(Long.class)) {
+            rs.next();
+            return cls.cast(rs.getLong(1));
+        } else if (cls.equals(LocalDateTime.class)) {
+            rs.next();
+            return cls.cast(rs.getTimestamp(1).toLocalDateTime());
+        } else if (cls.equals(Map.class)) {
+            rs.next();
+            Map<String, Object> row = rsRowToMap(rs);
+
+            return cls.cast(row);
+        }
+        else if (cls.equals(List.class)) {
+            List<Map<String, Object>> rows = new ArrayList<>();
+            while (rs.next()) {
+                Map<String, Object> row = rsRowToMap(rs);
+                rows.add(row);
+            }
+
+            return cls.cast(rows);
+        }
+
+        throw new RuntimeException();
+    }
+
+    private Map<String, Object> rsRowToMap(ResultSet rs) throws SQLException {
         ResultSetMetaData metaData = rs.getMetaData();
         Map<String, Object> row = new HashMap<>();
 
