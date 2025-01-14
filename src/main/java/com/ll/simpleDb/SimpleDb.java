@@ -42,29 +42,35 @@ public class SimpleDb {
         return _run(sql, Long.class);
     }
 
+    public LocalDateTime selectDateTime(String string) {
+        return _run(string, LocalDateTime.class);
+    }
+
     public void run(String sql, Object... params) {
-        _run(sql, Boolean.class, params);
+        _run(sql, Integer.class, params);
     }
 
     // SQL 실행 (PreparedStatement와 파라미터)
-    public <T> T _run(String sql, Class<T> type, Object... params) {
+    private  <T> T _run(String sql, Class<T> cls, Object... params) {
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
 
             if (sql.startsWith("SELECT")) {
                 ResultSet rs = stmt.executeQuery();// 결과가 있는 것
                 rs.next();
 
-                if (type.equals(Boolean.class)) {
-                    return (T) (Boolean) rs.getBoolean(1);
-                } else if (type.equals(String.class)) {
-                    return (T) rs.getString(1);
-                } else if (type.equals(Long.class)) {
-                    return (T) (Long) rs.getLong(1);
+                if (cls.equals(Boolean.class)) {
+                    return cls.cast(rs.getBoolean(1));
+                } else if (cls.equals(String.class)) {
+                    return cls.cast(rs.getString(1));
+                } else if (cls.equals(Long.class)) {
+                    return cls.cast(rs.getLong(1));
+                } else if (cls.equals(LocalDateTime.class)) {
+                    return cls.cast(rs.getTimestamp(1).toLocalDateTime());
                 }
             }
 
             setParams(stmt, params);
-            return (T) (Integer) stmt.executeUpdate();
+            return cls.cast(stmt.executeUpdate());
         } catch (SQLException e) {
             throw new RuntimeException("SQL 실행 실패: " + e.getMessage());
         }
@@ -80,6 +86,7 @@ public class SimpleDb {
     public Sql genSql() {
         return new Sql(this);
     }
+
 
 
 }
