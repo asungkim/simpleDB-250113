@@ -29,7 +29,7 @@ public class Sql {
     }
 
 
-    public void appendIn(String sql,Object... args) {
+    public Sql appendIn(String sql,Object... args) {
         String inClause = Arrays.stream(args)
                 .map(o -> "?")
                 .collect(Collectors.joining(", "));
@@ -37,7 +37,11 @@ public class Sql {
         String replacedSql = sql.replaceAll("\\?", inClause);
         this.params.addAll(Arrays.stream(args).toList());
         this.sqlBuilder.append(replacedSql);
+
+        return this;
     }
+
+
 
     public int update() {
         return simpleDb.update(sqlBuilder.toString(),params);
@@ -64,6 +68,10 @@ public class Sql {
         return simpleDb.selectLong(sqlBuilder.toString(),params);
     }
 
+    public List<Long> selectLongs() {
+        return simpleDb.selectLongs(sqlBuilder.toString(),params);
+    }
+
     public String selectString() {
         return simpleDb.selectString(sqlBuilder.toString(),params);
     }
@@ -75,6 +83,7 @@ public class Sql {
     public LocalDateTime selectDatetime() {
         return simpleDb.selectDateTime(sqlBuilder.toString(),params);
     }
+
 
 
 }

@@ -43,6 +43,12 @@ public class SimpleDb {
         return _run(sql, Long.class, params);
     }
 
+    public List<Long> selectLongs(String sql, List<Object> params) {
+        List<Map<String, Object>> maps = selectRows(sql, params);
+        return maps.stream()
+                .map(map -> (Long) map.values().iterator().next()).toList();
+    }
+
     public LocalDateTime selectDateTime(String sql, List<Object> params) {
         return _run(sql, LocalDateTime.class, params);
     }
@@ -75,7 +81,7 @@ public class SimpleDb {
     // SQL 실행 (PreparedStatement와 파라미터)
     private <T> T _run(String sql, Class<T> cls, List<Object> params) {
         System.out.println("sql: " + sql);
-        try (PreparedStatement stmt = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             setParams(stmt, params);
 
             if (sql.startsWith("SELECT")) {
