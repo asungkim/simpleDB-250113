@@ -18,7 +18,7 @@ public class Sql {
         return this;
     }
 
-    public Sql append(String sqlLine,Object... args ) {
+    public Sql append(String sqlLine, Object... args) {
         sqlBuilder.append(sqlLine);
         return this;
     }
@@ -47,29 +47,29 @@ public class Sql {
 
         List<Map<String, Object>> rows = new ArrayList<>();
 
-        Map<String, Object> row1=new HashMap<>();
+        Map<String, Object> row1 = new HashMap<>();
         row1.put("id", 1L);
-        row1.put("title","제목1");
-        row1.put("body","내용1");
-        row1.put("createdDate",LocalDateTime.now());
-        row1.put("modifiedDate",LocalDateTime.now());
-        row1.put("isBlind",false);
+        row1.put("title", "제목1");
+        row1.put("body", "내용1");
+        row1.put("createdDate", LocalDateTime.now());
+        row1.put("modifiedDate", LocalDateTime.now());
+        row1.put("isBlind", false);
 
-        Map<String, Object> row2=new HashMap<>();
+        Map<String, Object> row2 = new HashMap<>();
         row2.put("id", 2L);
-        row2.put("title","제목2");
-        row2.put("body","내용2");
-        row2.put("createdDate",LocalDateTime.now());
-        row2.put("modifiedDate",LocalDateTime.now());
-        row2.put("isBlind",false);
+        row2.put("title", "제목2");
+        row2.put("body", "내용2");
+        row2.put("createdDate", LocalDateTime.now());
+        row2.put("modifiedDate", LocalDateTime.now());
+        row2.put("isBlind", false);
 
-        Map<String, Object> row3=new HashMap<>();
+        Map<String, Object> row3 = new HashMap<>();
         row3.put("id", 3L);
-        row3.put("title","제목3");
-        row3.put("body","내용3");
-        row3.put("createdDate",LocalDateTime.now());
-        row3.put("modifiedDate",LocalDateTime.now());
-        row3.put("isBlind",false);
+        row3.put("title", "제목3");
+        row3.put("body", "내용3");
+        row3.put("createdDate", LocalDateTime.now());
+        row3.put("modifiedDate", LocalDateTime.now());
+        row3.put("isBlind", false);
 
         rows.add(row1);
         rows.add(row2);
@@ -80,13 +80,13 @@ public class Sql {
 
     public Map<String, Object> selectRow() {
 
-        Map<String, Object> row1=new HashMap<>();
+        Map<String, Object> row1 = new HashMap<>();
         row1.put("id", 1L);
-        row1.put("title","제목1");
-        row1.put("body","내용1");
-        row1.put("createdDate",LocalDateTime.now());
-        row1.put("modifiedDate",LocalDateTime.now());
-        row1.put("isBlind",false);
+        row1.put("title", "제목1");
+        row1.put("body", "내용1");
+        row1.put("createdDate", LocalDateTime.now());
+        row1.put("modifiedDate", LocalDateTime.now());
+        row1.put("isBlind", false);
 
         return row1;
     }
@@ -97,5 +97,13 @@ public class Sql {
 
     public Long selectLong() {
         return 1L;
+    }
+
+    public String selectString() {
+        return "제목1";
+    }
+
+    public Boolean selectBoolean() {
+        return false;
     }
 }
