@@ -107,6 +107,9 @@ public class Sql {
         if ("SELECT 1 = 1".equals(sqlBuilder.toString())) {
             return true;
         }
+        else if ("SELECT 1 = 0".equals(sqlBuilder.toString())) {
+            return false;
+        }
         return false;
     }
 }
