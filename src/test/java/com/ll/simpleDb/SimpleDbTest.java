@@ -93,7 +93,7 @@ public class SimpleDbTest {
 
         long newId = sql.insert(); // AUTO_INCREMENT 에 의해서 생성된 주키 리턴
 
-        assertThat(newId).isGreaterThan(0);
+        assertThat(newId).isGreaterThan(6L);
     }
 
     @Test

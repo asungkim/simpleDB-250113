@@ -31,36 +31,40 @@ public class SimpleDb {
         }
     }
 
-    public boolean selectBoolean(String sql,List<Object> params) {
-        return _run(sql, Boolean.class,params);
+    public boolean selectBoolean(String sql, List<Object> params) {
+        return _run(sql, Boolean.class, params);
     }
 
-    public String selectString(String sql,List<Object> params) {
-        return _run(sql, String.class,params);
+    public String selectString(String sql, List<Object> params) {
+        return _run(sql, String.class, params);
     }
 
-    public Long selectLong(String sql,List<Object> params) {
-        return _run(sql, Long.class,params);
+    public Long selectLong(String sql, List<Object> params) {
+        return _run(sql, Long.class, params);
     }
 
-    public LocalDateTime selectDateTime(String sql,List<Object> params) {
-        return _run(sql, LocalDateTime.class,params);
+    public LocalDateTime selectDateTime(String sql, List<Object> params) {
+        return _run(sql, LocalDateTime.class, params);
     }
 
-    public Map<String, Object> selectRow(String sql,List<Object> params) {
-        return _run(sql, Map.class,params);
+    public Map<String, Object> selectRow(String sql, List<Object> params) {
+        return _run(sql, Map.class, params);
     }
 
-    public List<Map<String, Object>> selectRows(String sql,List<Object> params) {
-        return _run(sql, List.class,params);
+    public List<Map<String, Object>> selectRows(String sql, List<Object> params) {
+        return _run(sql, List.class, params);
     }
 
-    public int delete(String sql,List<Object> params) {
-        return _run(sql, Integer.class,params);
+    public int delete(String sql, List<Object> params) {
+        return _run(sql, Integer.class, params);
     }
 
     public int update(String sql, List<Object> params) {
-        return _run(sql, Integer.class,params);
+        return _run(sql, Integer.class, params);
+    }
+
+    public long insert(String sql, List<Object> params) {
+        return _run(sql, Long.class, params);
     }
 
 
@@ -71,11 +75,23 @@ public class SimpleDb {
     // SQL 실행 (PreparedStatement와 파라미터)
     private <T> T _run(String sql, Class<T> cls, List<Object> params) {
         System.out.println("sql: " + sql);
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS)) {
 
             if (sql.startsWith("SELECT")) {
                 ResultSet rs = stmt.executeQuery();// 결과가 있는 것
-                return parseSelectQuery(rs,cls,params);
+                return parseSelectQuery(rs, cls);
+            }
+
+            if (sql.startsWith("INSERT")) {
+
+                if (cls.equals(Long.class)) {
+                    setParams(stmt, params);
+                    stmt.executeUpdate();
+                    ResultSet rs = stmt.getGeneratedKeys();
+                    if (rs.next()) {
+                        return cls.cast(rs.getLong(1));
+                    }
+                }
             }
 
             setParams(stmt, params);
@@ -85,7 +101,7 @@ public class SimpleDb {
         }
     }
 
-    private <T> T parseSelectQuery(ResultSet rs , Class<T> cls, Object... params) throws SQLException {
+    private <T> T parseSelectQuery(ResultSet rs, Class<T> cls) throws SQLException {
 
         if (cls.equals(Boolean.class)) {
             rs.next();
@@ -104,8 +120,7 @@ public class SimpleDb {
             Map<String, Object> row = rsRowToMap(rs);
 
             return cls.cast(row);
-        }
-        else if (cls.equals(List.class)) {
+        } else if (cls.equals(List.class)) {
             List<Map<String, Object>> rows = new ArrayList<>();
             while (rs.next()) {
                 Map<String, Object> row = rsRowToMap(rs);
@@ -140,7 +155,6 @@ public class SimpleDb {
     public Sql genSql() {
         return new Sql(this);
     }
-
 
 
 }
