@@ -104,6 +104,9 @@ public class Sql {
     }
 
     public Boolean selectBoolean() {
+        if ("SELECT 1 = 1".equals(sqlBuilder.toString())) {
+            return true;
+        }
         return false;
     }
 }
