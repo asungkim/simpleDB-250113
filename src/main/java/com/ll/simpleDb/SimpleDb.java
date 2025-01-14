@@ -76,6 +76,7 @@ public class SimpleDb {
     private <T> T _run(String sql, Class<T> cls, List<Object> params) {
         System.out.println("sql: " + sql);
         try (PreparedStatement stmt = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS)) {
+            setParams(stmt, params);
 
             if (sql.startsWith("SELECT")) {
                 ResultSet rs = stmt.executeQuery();// 결과가 있는 것
@@ -83,9 +84,7 @@ public class SimpleDb {
             }
 
             if (sql.startsWith("INSERT")) {
-
                 if (cls.equals(Long.class)) {
-                    setParams(stmt, params);
                     stmt.executeUpdate();
                     ResultSet rs = stmt.getGeneratedKeys();
                     if (rs.next()) {
@@ -94,7 +93,7 @@ public class SimpleDb {
                 }
             }
 
-            setParams(stmt, params);
+
             return cls.cast(stmt.executeUpdate());
         } catch (SQLException e) {
             throw new RuntimeException("SQL 실행 실패: " + e.getMessage());
