@@ -30,17 +30,37 @@ public class SimpleDb {
     }
 
     public boolean selectBoolean(String sql) {
-        return (boolean) run(sql);
+        return (boolean) _run(sql,0);
+    }
+
+    public String selectString(String sql) {
+        return (String) _run(sql,1);
+    }
+
+    public void run(String sql,Object... params) {
+        _run(sql,0,params);
     }
 
     // SQL 실행 (PreparedStatement와 파라미터)
-    public Object run(String sql, Object... params) {
+    public Object _run(String sql, int type,Object... params) {
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
 
             if (sql.startsWith("SELECT")) {
                 ResultSet rs = stmt.executeQuery();// 결과가 있는 것
                 rs.next();
-                return rs.getBoolean(1);
+
+                switch (type) {
+                    case 0 -> {
+                        return rs.getBoolean(1);
+                    }
+                    case 1 -> {
+                        return rs.getString(1);
+                    }
+                    case 2 -> {
+                        return rs.getInt(1);
+                    }
+                }
+
             }
 
             setParams(stmt, params);
@@ -60,4 +80,6 @@ public class SimpleDb {
     public Sql genSql() {
         return new Sql(this);
     }
+
+
 }
