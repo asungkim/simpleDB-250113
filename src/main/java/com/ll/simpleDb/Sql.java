@@ -86,12 +86,8 @@ public class Sql {
         return row1;
     }
 
-    public LocalDateTime selectDatetime() {
-        return LocalDateTime.now();
-    }
-
     public Long selectLong() {
-        return 1L;
+        return simpleDb.selectLong(sqlBuilder.toString());
     }
 
     public String selectString() {
@@ -100,5 +96,9 @@ public class Sql {
 
     public Boolean selectBoolean() {
         return simpleDb.selectBoolean(sqlBuilder.toString());
+    }
+
+    public LocalDateTime selectDatetime() {
+        return LocalDateTime.now();
     }
 }
