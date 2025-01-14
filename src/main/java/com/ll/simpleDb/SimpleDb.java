@@ -59,6 +59,10 @@ public class SimpleDb {
         return _run(sql, Integer.class,params);
     }
 
+    public int update(String sql, List<Object> params) {
+        return _run(sql, Integer.class,params);
+    }
+
 
     public int run(String sql, Object... params) {
         return _run(sql, Integer.class, Arrays.stream(params).toList());

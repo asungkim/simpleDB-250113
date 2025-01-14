@@ -27,16 +27,16 @@ public class Sql {
         return this;
     }
 
-    public long insert() {
-        return 1;
-    }
-
     public int update() {
-        return 3;
+        return simpleDb.update(sqlBuilder.toString(),params);
     }
 
     public int delete() {
         return simpleDb.delete(sqlBuilder.toString(), params);
+    }
+
+    public long insert() {
+        return 1;
     }
 
     public List<Map<String, Object>> selectRows() {
@@ -63,4 +63,6 @@ public class Sql {
     public LocalDateTime selectDatetime() {
         return simpleDb.selectDateTime(sqlBuilder.toString(),params);
     }
+
+
 }
