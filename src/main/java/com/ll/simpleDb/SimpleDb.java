@@ -5,6 +5,7 @@ import lombok.Setter;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SimpleDb {
@@ -52,12 +53,13 @@ public class SimpleDb {
         return _run(sql, Map.class);
     }
 
+
     public void run(String sql, Object... params) {
         _run(sql, Integer.class, params);
     }
 
     // SQL 실행 (PreparedStatement와 파라미터)
-    private  <T> T _run(String sql, Class<T> cls, Object... params) {
+    private <T> T _run(String sql, Class<T> cls, Object... params) {
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
 
             if (sql.startsWith("SELECT")) {
@@ -72,15 +74,16 @@ public class SimpleDb {
                     return cls.cast(rs.getLong(1));
                 } else if (cls.equals(LocalDateTime.class)) {
                     return cls.cast(rs.getTimestamp(1).toLocalDateTime());
-                }
-                else if (cls.equals(Map.class)) {
+                } else if (cls.equals(Map.class)) {
+
+                    ResultSetMetaData metaData = rs.getMetaData();
                     Map<String, Object> row = new HashMap<>();
-                    row.put("id", 1L);
-                    row.put("title", "제목1");
-                    row.put("body", "내용1");
-                    row.put("createdDate", LocalDateTime.now());
-                    row.put("modifiedDate", LocalDateTime.now());
-                    row.put("isBlind", false);
+
+                    int columnCount = metaData.getColumnCount();
+                    for (int i = 1; i <= columnCount; i++) {
+                        String cname = metaData.getColumnName(i);
+                        row.put(cname, rs.getObject(i));
+                    }
 
                     return cls.cast(row);
                 }
@@ -103,7 +106,6 @@ public class SimpleDb {
     public Sql genSql() {
         return new Sql(this);
     }
-
 
 
 }
