@@ -2,6 +2,7 @@ package com.ll.simpleDb;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Sql {
     private SimpleDb simpleDb;
@@ -25,6 +26,17 @@ public class Sql {
         sqlBuilder.append(sqlLine);
         sqlBuilder.append(" ");
         return this;
+    }
+
+
+    public void appendIn(String sql,Object... args) {
+        String inClause = Arrays.stream(args)
+                .map(o -> "?")
+                .collect(Collectors.joining(", "));
+
+        String replacedSql = sql.replaceAll("\\?", inClause);
+        this.params.addAll(Arrays.stream(args).toList());
+        this.sqlBuilder.append(replacedSql);
     }
 
     public int update() {
