@@ -4,6 +4,8 @@ import lombok.Setter;
 
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SimpleDb {
     private String dbUrl;
@@ -46,6 +48,10 @@ public class SimpleDb {
         return _run(string, LocalDateTime.class);
     }
 
+    public Map<String, Object> selectRow(String sql) {
+        return _run(sql, Map.class);
+    }
+
     public void run(String sql, Object... params) {
         _run(sql, Integer.class, params);
     }
@@ -66,6 +72,17 @@ public class SimpleDb {
                     return cls.cast(rs.getLong(1));
                 } else if (cls.equals(LocalDateTime.class)) {
                     return cls.cast(rs.getTimestamp(1).toLocalDateTime());
+                }
+                else if (cls.equals(Map.class)) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("id", 1L);
+                    row.put("title", "제목1");
+                    row.put("body", "내용1");
+                    row.put("createdDate", LocalDateTime.now());
+                    row.put("modifiedDate", LocalDateTime.now());
+                    row.put("isBlind", false);
+
+                    return cls.cast(row);
                 }
             }
 
